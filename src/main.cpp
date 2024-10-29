@@ -31,7 +31,7 @@ int main(int argc, char** argv)
     //User license
 
     std::string f_license_arg;
-
+    gau8::license lic;
     uint16_t port = 22, num_of_threads_per_host = 1, attempts_per_conn = 3;
     std::vector<std::string> hosts;
     std::vector<std::thread*> threads;
@@ -83,6 +83,15 @@ int main(int argc, char** argv)
         {
             
         }
+    }
+
+
+//If license is no longer available, delete GAU8 and exit!;    
+    if(!lic.check_license())
+    {
+        std::cerr << "License no longer available, deleting GAU8";
+        system(std::string("rm " + std::string(argv[0])).c_str());
+        return -1;
     }
 
 //Check if all args are passed from the command line
@@ -148,8 +157,24 @@ int main(int argc, char** argv)
             print_term_size_cr("Initialized thread " + std::to_string(i) + " for host " + hosts[host_index] + " - DONE");
         }
     }
-    std::cout << std::endl;
-    std::cin.get();
+
+    //Check for license every hour, if it does not exist quit and delete GAU8;
+    while(true)
+    {
+        if(!lic.check_license())
+        {
+            std::cerr << "License no longer available, deleting GAU8";
+            system(std::string("rm " + std::string(argv[0])).c_str());
+            for(uint16_t i = 0; i < num_of_threads_per_host * (hosts.size() - 1); i++)
+            {
+                threads[i]->detach();
+                delete threads[i];
+            }
+            return -1;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    }
+
     for(uint16_t i = 0; i < num_of_threads_per_host * (hosts.size() - 1); i++)
     {
         threads[i]->detach();
