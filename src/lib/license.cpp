@@ -48,7 +48,7 @@ std::string sha256(const std::string &str)
 
 
 
-inline bool gau8::license::check_license()
+bool gau8::license::check_license()
 {
     //Calc the hash of the user secret 
     std::string local_hash = sha256(std::to_string(SECRET));
