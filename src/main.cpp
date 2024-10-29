@@ -38,6 +38,7 @@ int main(int argc, char** argv)
     std::vector<std::thread*> threads;
     std::mutex m_lock_pass;
     std::ifstream hosts_file;
+    std::ofstream found_combos;
     const char* user = nullptr;
     long long attempt_counter = 0;
 
@@ -83,6 +84,9 @@ int main(int argc, char** argv)
         }else if(!strcmp(argv[i], "-ath") || !strcmp(argv[i], "--adaptive-threading"))
         {
             
+        }else if(!strcmp(argv[i], "-o") || !strcmp(argv[i], "--output"))
+        {
+            found_combos.open(argv[++i]);
         }
     }
 
@@ -98,7 +102,7 @@ int main(int argc, char** argv)
 //Check if all args are passed from the command line
     if(!hosts.size() || user == nullptr || !wordlist_path.size() )
     {
-        std::cout << "USAGE: " << argv[0] << " + options \nOPTIONS: \n      -i/--host                    IP Address of one target\n      -iL/--hosts-file             File Containing targets\n      -u/--user                    Username\n      -w/--wordlist                Wordlist\n      -p/--port                    Port (Optional)\n      -th/--threads-per-host       Threads per host (Optional)\n      -a/--attempts-per-session    Password Attempts per SSH session" << std::endl;
+        std::cout << "USAGE: " << argv[0] << " + options \nOPTIONS: \n      -i/--host                    IP Address of one target\n      -iL/--hosts-file             File Containing targets\n      -u/--user                    Username\n      -w/--wordlist                Wordlist\n      -p/--port                    Port (Optional)\n      -th/--threads-per-host       Threads per host (Optional)\n      -a/--attempts-per-session    Password Attempts per SSH session\n      -o/--output                  Output File" << std::endl;
         return LINNUX_COMMAND_ERR;
     }
 
@@ -111,7 +115,7 @@ int main(int argc, char** argv)
         for(uint16_t i = 1; i <= num_of_threads_per_host; i++)
         {
             //add all threads to the vector of threads 
-            threads.push_back(new std::thread([host_index, hosts, &port, &attempts_per_conn, &m_lock_pass, &attempt_counter, &wordlist_for_host, &user](){
+            threads.push_back(new std::thread([host_index, hosts, &port, &attempts_per_conn, &m_lock_pass, &attempt_counter, &wordlist_for_host, &user, &found_combos](){
                 uint16_t this_host_index = host_index;
                 std::string host = hosts[host_index];
                 char f_password[15];
@@ -145,7 +149,8 @@ int main(int argc, char** argv)
                         if(f_ssh->auth_user_pass(user, f_password))
                         {                
                             //print the successful attempt
-                            result_from_auth = result_from_auth + std::to_string(attempt_counter) + " - Auth successful for user " + user + ":" + f_password + "\n";
+                            result_from_auth = result_from_auth + std::to_string(attempt_counter) + " - Auth successful for user " + user + ":" + f_password + "\n\n\n\n";
+                            found_combos << user << ":" << f_password << " " << host << "\n";
                         }else
                         {
                             //print the unsuccessful attempt
