@@ -8,7 +8,7 @@
 #ifndef GAU8_LICENSE
     #define GAU8_LICENSE
     //Number of chars to ignore before reading the actual hash from the GET request
-    #define START_KEY_INDEX 10
+    #define START_KEY_INDEX 7
     //SECRET is the value used for the hash stored in the DB
     #define SECRET 2134231
     //User ID
