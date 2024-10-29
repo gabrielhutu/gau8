@@ -7,12 +7,13 @@
 
 #ifndef GAU8_LICENSE
     #define GAU8_LICENSE
-    #define API_DOMAIN "https://dev-okta.gabelapp.online/.well-known/ov-configurations"
-    #define GAU8_SALT 312308
+    #define START_KEY_INDEX 4
+    #define SECRET 12032183
+    #define USER_ID "663d3478eb8812b5472daa84"
+    #define API_DOMAIN "http://localhost:8001/"
 #endif
 
 namespace gau8 {
-
 class ssh{ 
 
 private:
@@ -34,7 +35,7 @@ private:
     const std::string api;
 
 public:
-    license(const char* user_id);
+    license();
     ~license();
     bool check_license();
 };
