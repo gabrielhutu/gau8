@@ -125,6 +125,7 @@ int main(int argc, char** argv)
                     }
                     for(uint16_t i = 1; i <= attempts_per_conn; i++)
                     {
+try_lock:                       
                         if(m_lock_pass.try_lock())
                         {
                             //Lock the wordlist and read one password
@@ -132,6 +133,8 @@ int main(int argc, char** argv)
                             //raise the counter for the number of attempts
                             attempt_counter++;
                             m_lock_pass.unlock();
+                        }else{
+                            goto try_lock;
                         }
     
                         //try to authenticate via the username that the connection was created with and the password that was read above
