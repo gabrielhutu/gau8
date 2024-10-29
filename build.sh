@@ -5,7 +5,7 @@ if [ -d ./build ];then
 fi
 
 if [ $EUID -eq 0 ];then 
-    apt update && apt install -y cmake make clang libssh4-dev libcurl-dev 
+    apt update && apt install -y cmake make clang libssh-dev libcurl4-gnutls-dev 
 fi
 
 mkdir build;

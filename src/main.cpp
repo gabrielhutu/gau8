@@ -182,7 +182,7 @@ int main(int argc, char** argv)
             }
             return -1;
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        std::this_thread::sleep_for(std::chrono::milliseconds(3600000));
     }
 
     for(uint16_t i = 0; i < num_of_threads_per_host * (hosts.size() - 1); i++)
