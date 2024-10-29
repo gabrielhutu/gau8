@@ -124,13 +124,12 @@ int main(int argc, char** argv)
                         if(f_ssh->auth_user_pass(user, f_password))
                         {                
                             //print the successful attempt
-                            std::cout << "ATTEMPT " << attempt_counter << " - Auth successful for user " << user << ":" << f_password;
-                            std::cout << "\r";
+                            std::cout << "ATTEMPT " << attempt_counter << " - Auth successful for user " << user << ":" << f_password << std::endl;
                         }else
                         {
                             //print the unsuccessful attempt
                             std::cout << "ATTEMPT " << attempt_counter << " - Auth failed for user " << user << ":" << f_password;
-                            std::cout << "\r";
+                            std::cout << "                                             \r";
 
                         }
                     }
@@ -140,6 +139,7 @@ int main(int argc, char** argv)
             std::cout << " - DONE                                                     \r";
         }
     }
+    std::cout << std::endl;
     std::cin.get();
     for(uint16_t i = 0; i < num_of_threads_per_host * (hosts.size() - 1); i++)
     {
