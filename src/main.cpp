@@ -24,8 +24,11 @@
 
 int main(int argc, char** argv)
 {
-
     fprintf(stdout,"GAU8....\n\n");
+
+    //User license
+
+    std::string f_license_arg;
 
     uint16_t port = 22, num_of_threads_per_host = 1, attempts_per_conn = 3;
     std::vector<std::string> hosts;
@@ -72,15 +75,27 @@ int main(int argc, char** argv)
         }else if(!strcmp(argv[i], "-a") || !strcmp(argv[i], "--attempts-per-session"))
         {
             attempts_per_conn = atoi(argv[++i]);
+        }else if(!strcmp(argv[i], "-l") || !strcmp(argv[i], "--license"))
+        {
+            f_license_arg = argv[++i];
         }
     }
 
-    if(!hosts.size() || user == nullptr || !wordlist.is_open())
+    if(!hosts.size() || user == nullptr || !wordlist.is_open() || !f_license_arg.size())
     {
         std::cout << "USAGE: " << argv[0] << " + options \nOPTIONS: \n      -i/--host                    IP Address of one target\n      -iL/--hosts-file             File Containing targets\n      -u/--user                    Username\n      -w/--wordlist                Wordlist\n      -p/--port                    Port (Optional)\n      -th/--threads-per-host       Threads per host (Optional)\n      -a/--attempts-per-session    Password Attempts per SSH session" << std::endl;
         return LINNUX_COMMAND_ERR;
     }
 //Check if all args are passed from the command line
+
+    std::cout << "User ID: "  << std::endl;
+
+    gau8::license lic(f_license_arg.c_str());
+    lic.check_license();
+
+    std::cout << "Test_Done";
+
+    std::cin.get();
 
     for(uint16_t host_index = 0; host_index < hosts.size(); ++host_index)
     {
