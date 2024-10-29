@@ -28,7 +28,7 @@ gau8::license::~license()
 
 bool check_key(const std::string& _key)
 {
-    
+    return true;
 }
 
 
