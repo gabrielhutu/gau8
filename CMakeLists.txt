@@ -11,4 +11,4 @@ add_library(gau8_license STATIC ./src/lib/license.cpp ./src/lib/connectors.hpp)
 
 add_executable(gau8 "./src/main.cpp")
 
-target_link_libraries(gau8 gau8_ssh gau8_license ssh curl)
+target_link_libraries(gau8 gau8_ssh gau8_license ssh curl jsoncpp)

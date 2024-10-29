@@ -7,12 +7,13 @@
 
 #ifndef GAU8_LICENSE
     #define GAU8_LICENSE
-    #define API_DOMAIN "https://example.com/"
+    #define API_DOMAIN "https://dev-okta.gabelapp.online/.well-known/ov-configurations"
+    #define GAU8_SALT 312308
 #endif
 
 namespace gau8 {
 
-class ssh{
+class ssh{ 
 
 private:
     ssh_session m_session;

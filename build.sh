@@ -12,3 +12,4 @@ mkdir build;
 cmake -S ./ -B ./build;
 cd build; 
 make
+chmod +x ./gau8
