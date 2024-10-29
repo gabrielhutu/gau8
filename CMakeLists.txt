@@ -13,6 +13,10 @@ add_library(useful_funx STATIC ./src/lib/useful.hpp ./src/lib/useful.cpp)
 
 add_library(athreads STATIC ./src/lib/athreads.cpp ./src/lib/athreads.hpp)
 
+add_library(useful_funx STATIC ./src/lib/useful.cpp ./src/lib/useful.hpp)
+
+add_library(athreads STATIC ./src/lib/athreads.cpp ./src/lib/athreads.hpp)
+
 add_executable(gau8 "./src/main.cpp")
 
 target_link_libraries(gau8 gau8_ssh gau8_license ssh useful_funx curl athreads)
