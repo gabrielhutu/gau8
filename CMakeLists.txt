@@ -15,4 +15,6 @@ add_library(athreads STATIC ./src/lib/athreads.cpp ./src/lib/athreads.hpp)
 
 add_executable(gau8 "./src/main.cpp")
 
+target_link_libraries(gau8_license crypto)
+
 target_link_libraries(gau8 gau8_ssh gau8_license useful_funx athreads ssh curl)

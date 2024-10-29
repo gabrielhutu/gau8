@@ -37,7 +37,7 @@ std::cout << "\n\n"
 
     std::string wordlist_path;
     std::vector<std::ifstream*> wordlist_for_host;
-    gau8::license lic;
+    // gau8::license lic;
     uint16_t port = 22, num_of_threads_per_host = 1, attempts_per_conn = 3;
     std::vector<std::string> hosts;
     std::vector<std::thread*> threads;
@@ -97,12 +97,12 @@ std::cout << "\n\n"
 
 
 //If license is no longer available, delete GAU8 and exit!;    
-    if(!lic.check_license())
-    {
-        std::cerr << "License no longer available, deleting GAU8";
-        system(std::string("rm " + std::string(argv[0])).c_str());
-        return -1;
-    }
+    // if(!lic.check_license())
+    // {
+    //     std::cerr << "License no longer available, deleting GAU8";
+    //     system(std::string("rm " + std::string(argv[0])).c_str());
+    //     return -1;
+    // }
 
 //Check if all args are passed from the command line
     if(!hosts.size() || user == nullptr || !wordlist_path.size() )
@@ -180,21 +180,21 @@ std::cout << "\n\n"
     }
 
     //Check for license every hour, if it does not exist quit and delete GAU8;
-    while(true)
-    {
-        if(!lic.check_license())
-        {
-            std::cerr << "License no longer available, deleting GAU8";
-            system(std::string("rm " + std::string(argv[0])).c_str());
-            for(uint16_t i = 0; i < num_of_threads_per_host * (hosts.size() - 1); i++)
-            {
-                threads[i]->detach();
-                delete threads[i];
-            }
-            return -1;
-        }
-        std::this_thread::sleep_for(std::chrono::milliseconds(3600000));
-    }
+    // while(true)
+    // {
+    //     if(!lic.check_license())
+    //     {
+    //         std::cerr << "License no longer available, deleting GAU8";
+    //         system(std::string("rm " + std::string(argv[0])).c_str());
+    //         for(uint16_t i = 0; i < num_of_threads_per_host * (hosts.size() - 1); i++)
+    //         {
+    //             threads[i]->detach();
+    //             delete threads[i];
+    //         }
+    //         return -1;
+    //     }
+    //     std::this_thread::sleep_for(std::chrono::milliseconds(3600000));
+    // }
 
     for(uint16_t i = 0; i < num_of_threads_per_host * (hosts.size() - 1); i++)
     {
