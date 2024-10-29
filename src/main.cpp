@@ -1,7 +1,5 @@
 #include "./lib/connectors.hpp"
-//#include <cstdio>
-//#include <cstdlib>
-#include <cstdio>
+#include "./lib/useful.hpp"
 #include <iostream>
 #include <fstream>
 #include <thread>
@@ -26,6 +24,7 @@
 
 int main(int argc, char** argv)
 {
+    system("clear");
     fprintf(stdout,"GAU8....\n\n");
 
     //User license
@@ -77,6 +76,9 @@ int main(int argc, char** argv)
         }else if(!strcmp(argv[i], "-a") || !strcmp(argv[i], "--attempts-per-session"))
         {
             attempts_per_conn = atoi(argv[++i]);
+        }else if(!strcmp(argv[i], "-ath") || !strcmp(argv[i], "--adaptive-threading"))
+        {
+            
         }
     }
 
@@ -93,7 +95,6 @@ int main(int argc, char** argv)
         for(uint16_t i = 1; i <= num_of_threads_per_host; i++)
         {
             //add all threads to the vector of threads 
-            std::cout << "Initializing thread " << i << " for host " << hosts[host_index];
             threads.push_back(new std::thread([&](){
                 static std::string host = hosts[host_index];
                 char f_password[15];
@@ -121,22 +122,27 @@ int main(int argc, char** argv)
                         }
     
                         //try to authenticate via the username that the connection was created with and the password that was read above
+                        
+                        std::string result_from_auth = "ATTEMPT: ";
+
                         if(f_ssh->auth_user_pass(user, f_password))
                         {                
                             //print the successful attempt
-                            std::cout << "ATTEMPT " << attempt_counter << " - Auth successful for user " << user << ":" << f_password << std::endl;
+                            result_from_auth = result_from_auth + std::to_string(attempt_counter) + " - Auth successful for user " + user + ":" + f_password + "\n";
                         }else
                         {
                             //print the unsuccessful attempt
-                            std::cout << "ATTEMPT " << attempt_counter << " - Auth failed for user " << user << ":" << f_password;
-                            std::cout << "                                             \r";
-
+                            result_from_auth = result_from_auth + std::to_string(attempt_counter) + " - Auth failed for user " + user + ":" + f_password;
                         }
+
+                        print_term_size_cr(result_from_auth);
+                        //std::cout << result_from_auth;
                     }
                     delete f_ssh;
                 }
             }));
-            std::cout << " - DONE                                                     \r";
+
+            print_term_size_cr("Initialized thread " + std::to_string(i) + " for host " + hosts[host_index] + " - DONE");
         }
     }
     std::cout << std::endl;
