@@ -149,7 +149,7 @@ int main(int argc, char** argv)
                         }else
                         {
                             //print the unsuccessful attempt
-                            result_from_auth = result_from_auth + std::to_string(attempt_counter) + " - Auth failed for user " + user + ":" + f_password;
+                            result_from_auth = result_from_auth + std::to_string(attempt_counter) + " - Auth failed for user " + user + ":" + f_password + " for host " + host;
                         }
 
                         print_term_size_cr(result_from_auth);
