@@ -1,5 +1,4 @@
 #include "./connectors.hpp"
-#include <json/json.h>
 
 static std::string licenseBuffer;
 
@@ -36,9 +35,6 @@ bool gau8::license::check_license()
 {
     std::string return_data;
     curl_easy_perform(handle);
-    Json::Value responseLicense;
-    Json::Reader reader;
-    reader.parse(licenseBuffer.c_str(), responseLicense);
     return true;
 }
 

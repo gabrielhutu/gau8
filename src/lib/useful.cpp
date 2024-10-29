@@ -15,6 +15,6 @@ void print_term_size_cr(const std::string& _str)
     {
         std::cout << std::left << std::setw(w.ws_col - 1) << std::setfill(' ') << _str;
         std::cout << "\r";
+        m_lock.unlock();
     }
-    m_lock.unlock();
 }

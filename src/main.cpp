@@ -38,6 +38,8 @@ int main(int argc, char** argv)
     std::ifstream wordlist, hosts_file;
     const char* user = nullptr;
     long long attempt_counter = 0;
+
+    //Check CMDline options
     for(uint16_t i = 1; i < argc; i++)
     {
         if(!strcmp(argv[i], "-iL") || !strcmp(argv[i], "--hosts-file"))
@@ -82,12 +84,12 @@ int main(int argc, char** argv)
         }
     }
 
+//Check if all args are passed from the command line
     if(!hosts.size() || user == nullptr || !wordlist.is_open() )
     {
         std::cout << "USAGE: " << argv[0] << " + options \nOPTIONS: \n      -i/--host                    IP Address of one target\n      -iL/--hosts-file             File Containing targets\n      -u/--user                    Username\n      -w/--wordlist                Wordlist\n      -p/--port                    Port (Optional)\n      -th/--threads-per-host       Threads per host (Optional)\n      -a/--attempts-per-session    Password Attempts per SSH session" << std::endl;
         return LINNUX_COMMAND_ERR;
     }
-//Check if all args are passed from the command line
 
 
     for(uint16_t host_index = 0; host_index < hosts.size(); ++host_index)
