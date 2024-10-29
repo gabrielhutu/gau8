@@ -12,7 +12,7 @@
     //SECRET is the value used for the hash stored in the DB
     #define SECRET 123091203
     //User ID
-    #define USER_ID "6647ce941ae3d904e7070e55"
+    #define USER_ID "664a6d7f87b5922ca5e4fb7d"
     #define API_DOMAIN "http://64.226.98.128:8001/"
 #endif
 

