@@ -46,7 +46,6 @@ std::cout << "\n\n"
     std::fstream found_combos;
     const char* user = nullptr;
     long long attempt_counter = 0;
-
     //Check CMDline options
     for(uint16_t i = 1; i < argc; i++)
     {
@@ -95,7 +94,7 @@ std::cout << "\n\n"
         }
     }
 
-
+    
 //If license is no longer available, delete GAU8 and exit!;    
     // if(!lic.check_license())
     // {
@@ -123,7 +122,7 @@ std::cout << "\n\n"
         std::this_thread::sleep_for(std::chrono::milliseconds(200));
         for(uint16_t i = 1; i <= num_of_threads_per_host; i++)
         {
-            //add all threads to the vector of threads 
+            //add all threads to the vector of threads (Not memory efficient but we need to be able to create as many threads as possible)
             threads.push_back(new std::thread([host_index, hosts, &port, &attempts_per_conn, &m_lock_pass, &attempt_counter, &wordlist_for_host, &user, &found_combos](){
                 const uint16_t this_host_index = host_index;
                 const std::string host = hosts[host_index];
@@ -195,6 +194,9 @@ std::cout << "\n\n"
     //     }
     //     std::this_thread::sleep_for(std::chrono::milliseconds(3600000));
     // }
+
+//TODO: add a condition to check if the threads are still attempting to authenticate. 
+    while(true){}
 
     for(uint16_t i = 0; i < num_of_threads_per_host * (hosts.size() - 1); i++)
     {
