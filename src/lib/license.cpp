@@ -1,4 +1,5 @@
 #include "./connectors.hpp"
+#include "./used_by_license_checker/sha256.h"
 
 static std::string licenseBuffer;
 
