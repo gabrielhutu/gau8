@@ -7,10 +7,13 @@
 
 #ifndef GAU8_LICENSE
     #define GAU8_LICENSE
+    //Number of chars to ignore before reading the actual hash from the GET request
     #define START_KEY_INDEX 4
+    //SECRET is the value used for the hash stored in the DB
     #define SECRET 12032183
-    #define USER_ID "6647c8a61ae3d904e7070e54"
-    #define API_DOMAIN "http://localhost:8001/"
+    //User ID
+    #define USER_ID "USER_ID_FROM_DB"
+    #define API_DOMAIN "API_URL"
 #endif
 
 namespace gau8 {
