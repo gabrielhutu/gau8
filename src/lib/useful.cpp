@@ -4,6 +4,7 @@
 #include <iomanip>
 #include <sys/ioctl.h>
 #include <mutex>
+#include <signal.h>
 
 std::mutex m_lock;
 
@@ -17,4 +18,10 @@ void print_term_size_cr(const std::string& _str)
         std::cout << "\r";
         m_lock.unlock();
     }
+}
+
+void clean_temp_files(int _ctrl_c_signal)
+{
+    system("rm -rf /tmp/gau8_tmp_wordlist*");
+    exit(LINNUX_COMMAND_ERR);
 }
