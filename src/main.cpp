@@ -116,8 +116,8 @@ int main(int argc, char** argv)
         {
             //add all threads to the vector of threads 
             threads.push_back(new std::thread([host_index, hosts, &port, &attempts_per_conn, &m_lock_pass, &attempt_counter, &wordlist_for_host, &user, &found_combos](){
-                uint16_t this_host_index = host_index;
-                std::string host = hosts[host_index];
+                const uint16_t this_host_index = host_index;
+                const std::string host = hosts[host_index];
                 char f_password[15];
                 while(true)
                 {
