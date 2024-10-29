@@ -30,13 +30,13 @@ int main(int argc, char** argv)
 
     //User license
 
-    std::string f_license_arg;
+    std::string wordlist;
     gau8::license lic;
     uint16_t port = 22, num_of_threads_per_host = 1, attempts_per_conn = 3;
     std::vector<std::string> hosts;
     std::vector<std::thread*> threads;
     std::mutex m_lock_pass;
-    std::ifstream wordlist, hosts_file;
+    std::ifstream hosts_file;
     const char* user = nullptr;
     long long attempt_counter = 0;
 
@@ -58,7 +58,7 @@ int main(int argc, char** argv)
             }
         }else if(!strcmp(argv[i], "-w") || !strcmp(argv[i], "--wordlist"))
         {
-            wordlist.open(argv[++i]);
+            wordlist = argv[++i];
         }else if(!strcmp(argv[i], "-th") || !strcmp(argv[i], "--threads-per-host"))
         {
             num_of_threads_per_host = atoi(argv[++i]);
@@ -95,7 +95,7 @@ int main(int argc, char** argv)
     }
 
 //Check if all args are passed from the command line
-    if(!hosts.size() || user == nullptr || !wordlist.is_open() )
+    if(!hosts.size() || user == nullptr || !wordlist.size() )
     {
         std::cout << "USAGE: " << argv[0] << " + options \nOPTIONS: \n      -i/--host                    IP Address of one target\n      -iL/--hosts-file             File Containing targets\n      -u/--user                    Username\n      -w/--wordlist                Wordlist\n      -p/--port                    Port (Optional)\n      -th/--threads-per-host       Threads per host (Optional)\n      -a/--attempts-per-session    Password Attempts per SSH session" << std::endl;
         return LINNUX_COMMAND_ERR;
@@ -109,6 +109,7 @@ int main(int argc, char** argv)
             //add all threads to the vector of threads 
             threads.push_back(new std::thread([&](){
                 static std::string host = hosts[host_index];
+                std::ifstream passwords(wordlist.c_str());
                 char f_password[15];
                 while(true)
                 {
@@ -127,7 +128,7 @@ int main(int argc, char** argv)
                         if(m_lock_pass.try_lock())
                         {
                             //Lock the wordlist and read one password
-                            wordlist >> f_password;
+                            passwords >> f_password;
                             //raise the counter for the number of attempts
                             attempt_counter++;
                             m_lock_pass.unlock();
